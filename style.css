@@ -1,0 +1,513 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* HTML dan BODY full height */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+    background: #f5f7fb;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Biar konten utama mendorong footer ke bawah */
+.main-content {
+    flex: 1;
+}
+
+/* Navbar Cantik */
+.navbar {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    padding: 15px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.logo {
+    font-size: 26px;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logo:hover {
+    color: #ffd700;
+}
+
+.nav-links a {
+    margin-left: 25px;
+    text-decoration: none;
+    color: white;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+
+.nav-links a:hover {
+    color: #ffd700;
+}
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Card Keren */
+.card {
+    background: white;
+    border-radius: 20px;
+    padding: 35px;
+    margin: 30px 0;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* FORM JADI GA GEDE */
+.form-container {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.form-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    margin: 30px auto;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    max-width: 700px;
+}
+
+/* Judul */
+h1 {
+    color: #1e3c72;
+    margin-bottom: 15px;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+h2 {
+    color: #2a5298;
+    margin: 25px 0 15px;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+h3 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 20px;
+}
+
+/* Form Group */
+.form-group {
+    margin-bottom: 18px;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.3s;
+    font-family: inherit;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #2a5298;
+    box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+}
+
+/* Tombol */
+.btn {
+    display: inline-block;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s;
+    text-decoration: none;
+    text-align: center;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(30, 60, 114, 0.4);
+}
+
+.btn-wa {
+    background: linear-gradient(135deg, #075e54 0%, #128c7e 100%);
+}
+
+.btn-wa:hover {
+    box-shadow: 0 5px 20px rgba(18, 140, 126, 0.4);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+}
+
+/* Grid Portfolio */
+.portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 25px;
+}
+
+.portfolio-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+}
+
+.portfolio-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+.portfolio-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.portfolio-card .info {
+    padding: 15px;
+}
+
+.portfolio-card h3 {
+    margin-bottom: 8px;
+    font-size: 16px;
+    color: #1e3c72;
+}
+
+.portfolio-card p {
+    color: #666;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Profile Section */
+.profile-section {
+    display: flex;
+    gap: 35px;
+    flex-wrap: wrap;
+}
+
+.profile-left {
+    flex: 1;
+    min-width: 250px;
+    text-align: center;
+}
+
+.profile-left img {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #2a5298;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+}
+
+.profile-right {
+    flex: 2;
+}
+
+/* Info Badge */
+.info-badge {
+    background: #f0f2f5;
+    padding: 6px 12px;
+    border-radius: 20px;
+    display: inline-block;
+    margin: 4px;
+    font-size: 13px;
+}
+
+/* Footer SELALU DI BAWAH */
+.footer {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    text-align: center;
+    padding: 25px 0;
+    margin-top: auto;
+    width: 100%;
+}
+
+/* Alert */
+.alert {
+    padding: 12px 18px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    border-left: 5px solid #28a745;
+}
+
+.alert-error {
+    background: #f8d7da;
+    color: #721c24;
+    border-left: 5px solid #dc3545;
+}
+
+.alert-info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border-left: 5px solid #17a2b2;
+}
+
+/* Tombol Kontak */
+.kontak-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 25px;
+    background: #25D366;
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    margin-top: 15px;
+    transition: all 0.3s;
+}
+
+.kontak-btn:hover {
+    background: #128C7E;
+    transform: scale(1.05);
+}
+
+/* Grid daftar penjahit */
+.tailor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 25px;
+}
+
+.tailor-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+    text-align: center;
+    padding: 20px;
+}
+
+.tailor-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+.tailor-card img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 3px solid #2a5298;
+}
+
+.tailor-card h3 {
+    margin-bottom: 8px;
+    font-size: 18px;
+}
+
+.tailor-card p {
+    color: #666;
+    font-size: 13px;
+    margin: 5px 0;
+}
+
+/* Tombol Login & Register di Navbar */
+.btn-login {
+    background: transparent;
+    border: 2px solid white;
+    color: white !important;
+    padding: 8px 20px;
+    border-radius: 25px;
+    transition: all 0.3s;
+}
+
+.btn-login:hover {
+    background: white;
+    color: #1e3c72 !important;
+    border-color: white;
+}
+
+.btn-register {
+    background: #ffd700;
+    color: #1e3c72 !important;
+    padding: 8px 20px;
+    border-radius: 25px;
+    transition: all 0.3s;
+}
+
+.btn-register:hover {
+    background: #ffed4a;
+    transform: translateY(-2px);
+}
+
+/* PERBAIKI TAMPILAN DESKTOP */
+.tailor-card, .portfolio-card {
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    transition: 0.3s;
+}
+
+.tailor-card:hover, .portfolio-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.tailor-card img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.portfolio-card img {
+    height: 200px;
+    object-fit: cover;
+}
+
+/* PERBAIKI PORTOFOLIO AGAR LEBAR */
+.profile-section {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.profile-left {
+    flex: 1.5;
+    min-width: 280px;
+}
+
+.profile-right {
+    flex: 3;
+    min-width: 300px;
+}
+
+/* Grid portfolio lebih lebar */
+.portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 30px;
+    margin-top: 25px;
+}
+
+/* Card portfolio */
+.portfolio-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+}
+
+.portfolio-card img {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+}
+
+.portfolio-card .info {
+    padding: 20px;
+}
+
+.portfolio-card h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.portfolio-card p {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .portfolio-grid, .tailor-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .profile-section {
+        flex-direction: column;
+    }
+    
+    h1 {
+        font-size: 24px;
+    }
+    
+    .form-card, .card {
+        padding: 20px;
+    }
+}
+
+/* BIAR CARD DI BERANDA JADI 3 KOLOM DI DESKTOP */
+@media (min-width: 1024px) {
+    .tailor-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .tailor-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* AGAR CARD TIDAK TERLALU KECIL SAAT 4 KOLOM */
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1400px;
+    }
+}
