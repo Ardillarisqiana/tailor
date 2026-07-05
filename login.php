@@ -22,7 +22,7 @@ if(isset($_SESSION['admin_login'])) {
         <?php
         // Proses login
         if($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $email = mysqli_real_escape_string($conn, $_POST['email']);
+            $email = $_POST['email'];
             $password = $_POST['password'];
             
             // CEK APAKAH ADMIN?
@@ -35,8 +35,10 @@ if(isset($_SESSION['admin_login'])) {
                 echo '<meta http-equiv="refresh" content="1;url=admin.php">';
             } else {
                 // CEK SEBAGAI USER PENJAHIT
-                $query = "SELECT * FROM penjahit WHERE email = '$email'";
-                $result = mysqli_query($conn, $query);
+                $stmt = mysqli_prepare($conn, "SELECT * FROM penjahit WHERE email = ?");
+                mysqli_stmt_bind_param($stmt, "s", $email);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
                 
                 if(mysqli_num_rows($result) == 1) {
                     $user = mysqli_fetch_assoc($result);
@@ -53,6 +55,8 @@ if(isset($_SESSION['admin_login'])) {
                 } else {
                     echo '<div class="alert alert-error">❌ Email tidak ditemukan!</div>';
                 }
+                
+                mysqli_stmt_close($stmt);
             }
         }
         ?>

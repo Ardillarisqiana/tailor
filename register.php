@@ -10,17 +10,17 @@
         <?php
         // Proses kalau form di-submit
         if($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $nama_lengkap = mysqli_real_escape_string($conn, $_POST['nama_lengkap']);
-            $username = mysqli_real_escape_string($conn, $_POST['username']);
-            $email = mysqli_real_escape_string($conn, $_POST['email']);
+            $nama_lengkap = $_POST['nama_lengkap'];
+            $username = $_POST['username'];
+            $email = $_POST['email'];
             $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
             // no_hp sudah TIDAK DIPAKAI! hanya pakai whatsapp
-            $nama_toko = mysqli_real_escape_string($conn, $_POST['nama_toko']);
+            $nama_toko = $_POST['nama_toko'];
             $pengalaman_tahun = (int)$_POST['pengalaman_tahun'];
-            $spesialisasi = mysqli_real_escape_string($conn, $_POST['spesialisasi']);
-            $alamat_lengkap = mysqli_real_escape_string($conn, $_POST['alamat_lengkap']);
-            $whatsapp = mysqli_real_escape_string($conn, $_POST['whatsapp']);
-            $instagram = mysqli_real_escape_string($conn, $_POST['instagram']);
+            $spesialisasi = $_POST['spesialisasi'];
+            $alamat_lengkap = $_POST['alamat_lengkap'];
+            $whatsapp = $_POST['whatsapp'];
+            $instagram = $_POST['instagram'];
             $harga_minimal = (int)$_POST['harga_minimal'];
             
             // Upload foto profil
@@ -33,16 +33,20 @@
             }
             
             // PERHATIAN: no_hp TIDAK dimasukkan karena kolomnya sudah dihapus dari database
-            $query = "INSERT INTO penjahit (nama_lengkap, username, email, password, nama_toko, pengalaman_tahun, spesialisasi, alamat_lengkap, whatsapp, instagram, harga_minimal, foto_profil) 
-                      VALUES ('$nama_lengkap', '$username', '$email', '$password', '$nama_toko', $pengalaman_tahun, '$spesialisasi', '$alamat_lengkap', '$whatsapp', '$instagram', $harga_minimal, '$foto_profil')";
+            $stmt = mysqli_prepare($conn, "INSERT INTO penjahit (nama_lengkap, username, email, password, nama_toko, pengalaman_tahun, spesialisasi, alamat_lengkap, whatsapp, instagram, harga_minimal, foto_profil) 
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            mysqli_stmt_bind_param($stmt, "sssssissssis", $nama_lengkap, $username, $email, $password, $nama_toko, $pengalaman_tahun, $spesialisasi, $alamat_lengkap, $whatsapp, $instagram, $harga_minimal, $foto_profil);
             
-            if(mysqli_query($conn, $query)) {
+            if(mysqli_stmt_execute($stmt)) {
+                mysqli_stmt_close($stmt);
                 // ✅ BERHASIL → LANGSUNG KE HALAMAN BERANDA
                 echo '<div class="alert alert-success">✅ Pendaftaran berhasil! Mengalihkan ke beranda...</div>';
                 echo '<meta http-equiv="refresh" content="2;url=index.php">';
             } else {
+                $db_error = mysqli_error($conn);
+                mysqli_stmt_close($stmt);
                 // ❌ GAGAL → TETAP DI FORM, TAMPILIN ERROR
-                echo '<div class="alert alert-error">❌ Error: ' . mysqli_error($conn) . '</div>';
+                echo '<div class="alert alert-error">❌ Error: ' . $db_error . '</div>';
             }
         }
         ?>

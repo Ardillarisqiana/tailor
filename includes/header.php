@@ -27,7 +27,4 @@
         </div>
     </nav>
     <main class="container">
-</body>
-</html>
-   
 

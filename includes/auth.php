@@ -15,9 +15,12 @@ if(!isset($_SESSION['user_id'])) {
 
 // Ambil data user yang login dari database
 $user_id = $_SESSION['user_id'];
-$query = "SELECT * FROM penjahit WHERE id = $user_id";
-$result = mysqli_query($conn, $query);
+$stmt = mysqli_prepare($conn, "SELECT * FROM penjahit WHERE id = ?");
+mysqli_stmt_bind_param($stmt, "i", $user_id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 $user = mysqli_fetch_assoc($result);
+mysqli_stmt_close($stmt);
 
 // Kalau user tidak ditemukan di database
 if(!$user) {

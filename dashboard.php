@@ -63,9 +63,12 @@ include 'includes/header.php';
     <?php
     $edit_id = isset($_GET['edit']) ? (int)$_GET['edit'] : 0;
     if($edit_id > 0):
-        $edit_query = "SELECT * FROM portfolio WHERE id = $edit_id AND penjahit_id = {$user['id']}";
-        $edit_result = mysqli_query($conn, $edit_query);
-        $edit_item = mysqli_fetch_assoc($edit_result);
+        $stmt_edit = mysqli_prepare($conn, "SELECT * FROM portfolio WHERE id = ? AND penjahit_id = ?");
+        mysqli_stmt_bind_param($stmt_edit, "ii", $edit_id, $user['id']);
+        mysqli_stmt_execute($stmt_edit);
+        $result_edit = mysqli_stmt_get_result($stmt_edit);
+        $edit_item = mysqli_fetch_assoc($result_edit);
+        mysqli_stmt_close($stmt_edit);
         
         if($edit_item):
     ?>
@@ -119,9 +122,9 @@ include 'includes/header.php';
     <?php
     // PROSES TAMBAH PORTFOLIO
     if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'add_portfolio') {
-        $judul = mysqli_real_escape_string($conn, $_POST['judul']);
-        $deskripsi = mysqli_real_escape_string($conn, $_POST['deskripsi']);
-        $kategori = mysqli_real_escape_string($conn, $_POST['kategori']);
+        $judul = $_POST['judul'];
+        $deskripsi = $_POST['deskripsi'];
+        $kategori = $_POST['kategori'];
         $harga_estimasi = (int)$_POST['harga_estimasi'];
         
         $foto = '';
@@ -130,30 +133,37 @@ include 'includes/header.php';
             move_uploaded_file($_FILES['foto']['tmp_name'], "uploads/" . $foto);
         }
         
-        $query = "INSERT INTO portfolio (penjahit_id, judul, deskripsi, kategori, foto, harga_estimasi) 
-                  VALUES ({$user['id']}, '$judul', '$deskripsi', '$kategori', '$foto', $harga_estimasi)";
+        $stmt_add = mysqli_prepare($conn, "INSERT INTO portfolio (penjahit_id, judul, deskripsi, kategori, foto, harga_estimasi) 
+                  VALUES (?, ?, ?, ?, ?, ?)");
+        mysqli_stmt_bind_param($stmt_add, "issssi", $user['id'], $judul, $deskripsi, $kategori, $foto, $harga_estimasi);
         
-        if(mysqli_query($conn, $query)) {
+        if(mysqli_stmt_execute($stmt_add)) {
+            mysqli_stmt_close($stmt_add);
             echo '<div class="alert alert-success">✅ Karya berhasil ditambahkan!</div>';
             echo '<meta http-equiv="refresh" content="1">';
         } else {
-            echo '<div class="alert alert-error">❌ Error: ' . mysqli_error($conn) . '</div>';
+            $db_error = mysqli_error($conn);
+            mysqli_stmt_close($stmt_add);
+            echo '<div class="alert alert-error">❌ Error: ' . $db_error . '</div>';
         }
     }
     
     // PROSES EDIT PORTFOLIO
     if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'edit_portfolio') {
         $edit_id = (int)$_POST['edit_id'];
-        $judul = mysqli_real_escape_string($conn, $_POST['judul']);
-        $deskripsi = mysqli_real_escape_string($conn, $_POST['deskripsi']);
-        $kategori = mysqli_real_escape_string($conn, $_POST['kategori']);
+        $judul = $_POST['judul'];
+        $deskripsi = $_POST['deskripsi'];
+        $kategori = $_POST['kategori'];
         $harga_estimasi = (int)$_POST['harga_estimasi'];
         
         // Ambil foto lama
-        $query_foto = "SELECT foto FROM portfolio WHERE id = $edit_id AND penjahit_id = {$user['id']}";
-        $result_foto = mysqli_query($conn, $query_foto);
+        $stmt_foto = mysqli_prepare($conn, "SELECT foto FROM portfolio WHERE id = ? AND penjahit_id = ?");
+        mysqli_stmt_bind_param($stmt_foto, "ii", $edit_id, $user['id']);
+        mysqli_stmt_execute($stmt_foto);
+        $result_foto = mysqli_stmt_get_result($stmt_foto);
         $foto_lama = mysqli_fetch_assoc($result_foto);
         $foto = $foto_lama['foto'];
+        mysqli_stmt_close($stmt_foto);
         
         // Cek upload foto baru
         if(isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
@@ -166,25 +176,27 @@ include 'includes/header.php';
             $foto = $foto_baru;
         }
         
-        $update = "UPDATE portfolio SET 
-                    judul = '$judul',
-                    deskripsi = '$deskripsi',
-                    kategori = '$kategori',
-                    harga_estimasi = $harga_estimasi,
-                    foto = '$foto'
-                   WHERE id = $edit_id AND penjahit_id = {$user['id']}";
+        $stmt_update = mysqli_prepare($conn, "UPDATE portfolio SET 
+                    judul = ?, deskripsi = ?, kategori = ?, harga_estimasi = ?, foto = ?
+                   WHERE id = ? AND penjahit_id = ?");
+        mysqli_stmt_bind_param($stmt_update, "sssiiis", $judul, $deskripsi, $kategori, $harga_estimasi, $foto, $edit_id, $user['id']);
         
-        if(mysqli_query($conn, $update)) {
+        if(mysqli_stmt_execute($stmt_update)) {
+            mysqli_stmt_close($stmt_update);
             echo '<div class="alert alert-success">✅ Karya berhasil diupdate!</div>';
             echo '<meta http-equiv="refresh" content="1;url=dashboard.php">';
         } else {
-            echo '<div class="alert alert-error">❌ Error: ' . mysqli_error($conn) . '</div>';
+            $db_error = mysqli_error($conn);
+            mysqli_stmt_close($stmt_update);
+            echo '<div class="alert alert-error">❌ Error: ' . $db_error . '</div>';
         }
     }
     
     // Ambil semua portfolio
-    $query = "SELECT * FROM portfolio WHERE penjahit_id = {$user['id']} ORDER BY dibuat_pada DESC";
-    $result = mysqli_query($conn, $query);
+    $stmt_list = mysqli_prepare($conn, "SELECT * FROM portfolio WHERE penjahit_id = ? ORDER BY dibuat_pada DESC");
+    mysqli_stmt_bind_param($stmt_list, "i", $user['id']);
+    mysqli_stmt_execute($stmt_list);
+    $result = mysqli_stmt_get_result($stmt_list);
     ?>
     
     <?php if(mysqli_num_rows($result) > 0): ?>
@@ -216,7 +228,12 @@ include 'includes/header.php';
     
     <?php
     // Hitung order aktif
-    $aktif = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM orders WHERE penjahit_id = {$user['id']} AND status IN ('pending', 'diterima')"));
+    $stmt_aktif = mysqli_prepare($conn, "SELECT COUNT(*) as total FROM orders WHERE penjahit_id = ? AND status IN ('pending', 'diterima')");
+    mysqli_stmt_bind_param($stmt_aktif, "i", $user['id']);
+    mysqli_stmt_execute($stmt_aktif);
+    $result_aktif = mysqli_stmt_get_result($stmt_aktif);
+    $aktif = mysqli_fetch_assoc($result_aktif);
+    mysqli_stmt_close($stmt_aktif);
     $sisa = 8 - $aktif['total'];
     echo "<div class='alert alert-info'>Sisa kuota bulan ini: <strong>$sisa</strong> dari 8 order</div>";
     
@@ -224,11 +241,17 @@ include 'includes/header.php';
     if(isset($_GET['ubah_status'])) {
         $order_id = (int)$_GET['order_id'];
         $status = $_GET['ubah_status'];
-        mysqli_query($conn, "UPDATE orders SET status = '$status' WHERE id = $order_id AND penjahit_id = {$user['id']}");
+        $stmt_status = mysqli_prepare($conn, "UPDATE orders SET status = ? WHERE id = ? AND penjahit_id = ?");
+        mysqli_stmt_bind_param($stmt_status, "sii", $status, $order_id, $user['id']);
+        mysqli_stmt_execute($stmt_status);
+        mysqli_stmt_close($stmt_status);
         echo '<script>alert("Status berhasil diubah!"); window.location.href="dashboard.php";</script>';
     }
     
-    $orders = mysqli_query($conn, "SELECT * FROM orders WHERE penjahit_id = {$user['id']} ORDER BY nomor_order ASC");
+    $stmt_orders = mysqli_prepare($conn, "SELECT * FROM orders WHERE penjahit_id = ? ORDER BY nomor_order ASC");
+    mysqli_stmt_bind_param($stmt_orders, "i", $user['id']);
+    mysqli_stmt_execute($stmt_orders);
+    $orders = mysqli_stmt_get_result($stmt_orders);
     ?>
     
     <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">

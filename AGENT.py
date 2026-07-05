@@ -43,39 +43,84 @@
 # ════════════════════════════════════════════════════════════════════════════════════
 #
 # Setelah menyelesaikan perubahan/pengembangan pada aplikasi ini, setiap model AI
-# HARUS mengikuti workflow berikut secara ketat:
+# HARUS mengikuti workflow berikut secara ketat. Workflow ini bersifat SIKLUS -
+# jika ada kegagalan di tahap mana pun, WAJIB kembali ke STEP 1.
 #
 # ─── STEP 1: TEST DI LOCALHOST ──────────────────────────────────────────────
-# 1. Setelah selesai update/edit kode, jalankan unit test di localhost:
+# 1. Setelah selesai update/edit kode, JANGAN LANGSUNG PUSH.
+# 2. Jalankan unit test di localhost:
 #      python AGENT.py --test
-# 2. Pastikan SEMUA tes PASS (100%) sebelum lanjut ke step berikutnya.
-# 3. Jika ada tes yang GAGAL, analisa penyebabnya, perbaiki kode, lalu ulangi
-#    test hingga semua lolos.
+# 3. Pastikan SEMUA tes PASS (100%) sebelum lanjut ke step berikutnya.
+# 4. Jika ada tes yang GAGAL:
+#    a. Baca error message dengan seksama
+#    b. Analisa penyebab kegagalan (cek kode yang baru diubah)
+#    c. Perbaiki kode yang bermasalah
+#    d. Ulangi test dari langkah 2 hingga semua lolos
+# 5. Catat: JIKA ADA 1 TES GAGAL → STOP → JANGAN PUSH → PERBAIKI
 #
 # ─── STEP 2: PUSH & COMMIT KE GITHUB ────────────────────────────────────────
-# 1. Jika semua tes lolos, lakukan commit dengan pesan yang jelas:
+# 1. HANYA jika semua tes lolos (100%), lakukan commit:
 #      git add .
 #      git commit -m "deskripsi perubahan yang dilakukan"
 # 2. Push ke GitHub:
 #      git push origin <branch>
+# 3. Pastikan branch yang benar (biasanya main/master atau feature branch)
+# 4. JIKA PUSH GAGAL (conflict/ditolak):
+#    a. Pull perubahan terbaru: git pull origin <branch>
+#    b. Resolve conflict jika ada
+#    c. Test lagi di localhost (STEP 1)
+#    d. Coba push lagi
 #
-# ─── STEP 3: AUTO-TEST DI GITHUB (CI/CD) ───────────────────────────────────
-# 1. Setelah push, GitHub akan otomatis menjalankan tes (GitHub Actions).
-# 2. Pantau hasil tes di halaman Actions repository GitHub.
-# 3. JIKA TES GAGAL DI GITHUB:
-#    a. Analisa log error dari GitHub Actions
-#    b. Identifikasi penyebab kegagalan
-#    c. Perbaiki kode di localhost
-#    d. Ulangi dari STEP 1
-# 4. JIKA TES LOLOS DI GITHUB:
+# ─── STEP 3: AUTO-TEST CI/CD DI GITHUB ──────────────────────────────────────
+# 1. Setelah push BERHASIL, GitHub Actions akan OTOMATIS menjalankan tes.
+# 2. TUNGGU hingga pipeline selesai (jangan push commit baru sebelum selesai).
+# 3. Periksa hasil tes di: https://github.com/<owner>/<repo>/actions
+#    Atau gunakan: gh run list
+#
+# ─── STEP 4: ANALISA HASIL CI/CD ────────────────────────────────────────────
+# 1. JIKA TES CI/CD LOLOS (GREEN):
 #    - Perubahan siap untuk staging/production
+#    - Lanjut ke deployment jika ada
+#    - Workflow SELESAI ✓
 #
-# ─── ATURAN UTAMA ───────────────────────────────────────────────────────────
+# 2. JIKA TES CI/CD GAGAL (RED):
+#    a. Analisa log error dari GitHub Actions secara detail:
+#       - Buka halaman Action yang gagal
+#       - Baca section error/failure
+#       - Identifikasi baris kode yang menyebabkan kegagalan
+#    b. KEMBALI KE STEP 1:
+#       - Perbaiki kode di localhost berdasarkan analisa
+#       - Test ulang di localhost (STEP 1)
+#       - Push ulang setelah lolos (STEP 2)
+#       - Tes ulang di CI/CD (STEP 3)
+#    c. ULANGI siklus ini sampai CI/CD PASS
+#    d. PENTING: Jangan push commit baru sebelum siklus selesai
+#
+# ─── DIAGRAM SIKLUS ─────────────────────────────────────────────────────────
+#
+#   ┌──────────────────────────────────────────────────┐
+#   │                                                  │
+#   │   [UPDATE KODE]                                  │
+#   │       ↓                                          │
+#   │   [TEST LOCALHOST] ──GAGAL──→ [ANALISA & FIX]   │
+#   │       ↓ LOLOS                                    │
+#   │   [PUSH & COMMIT] ──GAGAL──→ [RESOLVE & FIX]    │
+#   │       ↓ BERHASIL                                 │
+#   │   [CI/CD AUTO-TEST] ──GAGAL──→ [ANALISA & FIX]  │
+#   │       ↓ LOLOS                  ↓                 │
+#   │   [✓ SELESAI]          KEMBALI KE UPDATE KODE    │
+#   │                                                  │
+#   └─────── JIKA GAGAL, KEMBALI KE ATAS ──────────────┘
+#
+# ─── ATURAN UTAMA (WAJIB) ──────────────────────────────────────────────────
 # ✅ JANGAN PERNAH push langsung tanpa test localhost terlebih dahulu
-# ✅ JANGAN PERNAH mengabaikan test yang gagal
+# ✅ JANGAN PERNAH mengabaikan test yang gagal (baik local maupun CI/CD)
 # ✅ Selalu analisa error sebelum memperbaiki kode
 # ✅ Pastikan commit message deskriptif dan jelas
 # ✅ Jika ragu, jalankan test sekali lagi
+# ✅ JANGAN push commit baru saat CI/CD masih berjalan
+# ✅ Jika CI/CD gagal, WAJIB selesaikan siklus dari STEP 1
+# ✅ Commit message wajib menyertakan referensi issue/fitur jika ada
 #
 # ════════════════════════════════════════════════════════════════════════════════════
 

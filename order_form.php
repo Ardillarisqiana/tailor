@@ -3,7 +3,13 @@ include 'includes/config.php';
 include 'includes/header.php'; 
 
 $id_penjahit = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-$penjahit = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM penjahit WHERE id = $id_penjahit"));
+
+$stmt_penjahit = mysqli_prepare($conn, "SELECT * FROM penjahit WHERE id = ?");
+mysqli_stmt_bind_param($stmt_penjahit, "i", $id_penjahit);
+mysqli_stmt_execute($stmt_penjahit);
+$result_penjahit = mysqli_stmt_get_result($stmt_penjahit);
+$penjahit = mysqli_fetch_assoc($result_penjahit);
+mysqli_stmt_close($stmt_penjahit);
 
 if(!$penjahit) {
     echo "<div class='card'><h1>Penjahit tidak ditemukan</h1><a href='index.php' class='btn'>Kembali</a></div>";
@@ -12,10 +18,20 @@ if(!$penjahit) {
 }
 
 // Hitung antrian aktif (pending + diterima)
-$antrian = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM orders WHERE penjahit_id = $id_penjahit AND status IN ('pending', 'diterima')"));
+$stmt_antrian = mysqli_prepare($conn, "SELECT COUNT(*) as total FROM orders WHERE penjahit_id = ? AND status IN ('pending', 'diterima')");
+mysqli_stmt_bind_param($stmt_antrian, "i", $id_penjahit);
+mysqli_stmt_execute($stmt_antrian);
+$result_antrian = mysqli_stmt_get_result($stmt_antrian);
+$antrian = mysqli_fetch_assoc($result_antrian);
+mysqli_stmt_close($stmt_antrian);
+
 $max_order = 8; // Maksimal 8 order aktif per bulan
 $sisa_kuota = $max_order - $antrian['total'];
-$next_number = mysqli_fetch_assoc(mysqli_query($conn, "SELECT last_number FROM order_sequence"))['last_number'] + 1;
+$stmt_seq = mysqli_prepare($conn, "SELECT last_number FROM order_sequence");
+mysqli_stmt_execute($stmt_seq);
+$result_seq = mysqli_stmt_get_result($stmt_seq);
+$next_number = mysqli_fetch_assoc($result_seq)['last_number'] + 1;
+mysqli_stmt_close($stmt_seq);
 ?>
 
 <div class="form-container">
@@ -36,12 +52,12 @@ $next_number = mysqli_fetch_assoc(mysqli_query($conn, "SELECT last_number FROM o
         
         <?php
         if($_SERVER['REQUEST_METHOD'] == 'POST' && $sisa_kuota > 0) {
-            $nama_klien = mysqli_real_escape_string($conn, $_POST['nama_klien']);
-            $no_hp = mysqli_real_escape_string($conn, $_POST['no_hp']);
-            $jenis_pakaian = mysqli_real_escape_string($conn, $_POST['jenis_pakaian']);
+            $nama_klien = $_POST['nama_klien'];
+            $no_hp = $_POST['no_hp'];
+            $jenis_pakaian = $_POST['jenis_pakaian'];
             $jumlah = (int)$_POST['jumlah'];
             $budget_estimasi = (int)$_POST['budget_estimasi'];
-            $catatan = mysqli_real_escape_string($conn, $_POST['catatan']);
+            $catatan = $_POST['catatan'];
             
             // Upload foto referensi
             $foto_referensi = '';
@@ -51,21 +67,30 @@ $next_number = mysqli_fetch_assoc(mysqli_query($conn, "SELECT last_number FROM o
                 move_uploaded_file($_FILES['foto_referensi']['tmp_name'], "uploads/referensi/" . $foto_referensi);
             }
             
-            // Ambil nomor urut berikutnya
-            $nomor_order = mysqli_fetch_assoc(mysqli_query($conn, "SELECT last_number FROM order_sequence"))['last_number'] + 1;
+            // Pakai nomor urut dari $next_number ( sudah di-query di atas)
+            $nomor_order = $next_number;
             
-            $query = "INSERT INTO orders (nomor_order, penjahit_id, nama_klien, no_hp, jenis_pakaian, jumlah, foto_referensi, budget_estimasi, catatan, status) 
-                      VALUES ($nomor_order, $id_penjahit, '$nama_klien', '$no_hp', '$jenis_pakaian', $jumlah, '$foto_referensi', $budget_estimasi, '$catatan', 'pending')";
+            $stmt_order = mysqli_prepare($conn, "INSERT INTO orders (nomor_order, penjahit_id, nama_klien, no_hp, jenis_pakaian, jumlah, foto_referensi, budget_estimasi, catatan, status) 
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
+            mysqli_stmt_bind_param($stmt_order, "iisssisis", $nomor_order, $id_penjahit, $nama_klien, $no_hp, $jenis_pakaian, $jumlah, $foto_referensi, $budget_estimasi, $catatan);
             
-            if(mysqli_query($conn, $query)) {
-                mysqli_query($conn, "UPDATE order_sequence SET last_number = $nomor_order");
+            if(mysqli_stmt_execute($stmt_order)) {
+                mysqli_stmt_close($stmt_order);
+                
+                $stmt_update = mysqli_prepare($conn, "UPDATE order_sequence SET last_number = ?");
+                mysqli_stmt_bind_param($stmt_update, "i", $nomor_order);
+                mysqli_stmt_execute($stmt_update);
+                mysqli_stmt_close($stmt_update);
+                
                 echo '<div class="alert alert-success">';
                 echo '✅ Pesanan berhasil! Nomor antrian Anda: <strong>' . $nomor_order . '</strong><br>';
                 echo 'Penjahit akan menghubungi Anda segera via WhatsApp.';
                 echo '</div>';
                 echo '<meta http-equiv="refresh" content="3;url=portofolio.php?id=' . $id_penjahit . '">';
             } else {
-                echo '<div class="alert alert-error">❌ Gagal: ' . mysqli_error($conn) . '</div>';
+                $db_error = mysqli_error($conn);
+                mysqli_stmt_close($stmt_order);
+                echo '<div class="alert alert-error">❌ Gagal: ' . $db_error . '</div>';
             }
         }
         ?>

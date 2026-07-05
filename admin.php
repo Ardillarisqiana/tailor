@@ -39,35 +39,74 @@ if(!isset($_SESSION['admin_login'])) {
 // PROSES APPROVE
 if(isset($_GET['approve'])) {
     $id = (int)$_GET['approve'];
-    mysqli_query($conn, "UPDATE penjahit SET status = 'approved' WHERE id = $id");
+    $stmt_approve = mysqli_prepare($conn, "UPDATE penjahit SET status = 'approved' WHERE id = ?");
+    mysqli_stmt_bind_param($stmt_approve, "i", $id);
+    mysqli_stmt_execute($stmt_approve);
+    mysqli_stmt_close($stmt_approve);
     echo '<script>alert("✅ Penjahit berhasil disetujui!"); window.location.href="admin.php";</script>';
 }
 
 // PROSES REJECT
 if(isset($_GET['reject'])) {
     $id = (int)$_GET['reject'];
-    mysqli_query($conn, "UPDATE penjahit SET status = 'rejected' WHERE id = $id");
+    $stmt_reject = mysqli_prepare($conn, "UPDATE penjahit SET status = 'rejected' WHERE id = ?");
+    mysqli_stmt_bind_param($stmt_reject, "i", $id);
+    mysqli_stmt_execute($stmt_reject);
+    mysqli_stmt_close($stmt_reject);
     echo '<script>alert("❌ Penjahit ditolak!"); window.location.href="admin.php";</script>';
 }
 
 // HAPUS PENJAHIT
 if(isset($_GET['delete'])) {
     $id = (int)$_GET['delete'];
-    mysqli_query($conn, "DELETE FROM portfolio WHERE penjahit_id = $id");
-    mysqli_query($conn, "DELETE FROM testimoni WHERE penjahit_id = $id");
-    mysqli_query($conn, "DELETE FROM pertanyaan WHERE penjahit_id = $id");
-    mysqli_query($conn, "DELETE FROM penjahit WHERE id = $id");
+    $stmt_del1 = mysqli_prepare($conn, "DELETE FROM portfolio WHERE penjahit_id = ?");
+    mysqli_stmt_bind_param($stmt_del1, "i", $id);
+    mysqli_stmt_execute($stmt_del1);
+    mysqli_stmt_close($stmt_del1);
+    
+    $stmt_del2 = mysqli_prepare($conn, "DELETE FROM testimoni WHERE penjahit_id = ?");
+    mysqli_stmt_bind_param($stmt_del2, "i", $id);
+    mysqli_stmt_execute($stmt_del2);
+    mysqli_stmt_close($stmt_del2);
+    
+    $stmt_del3 = mysqli_prepare($conn, "DELETE FROM pertanyaan WHERE penjahit_id = ?");
+    mysqli_stmt_bind_param($stmt_del3, "i", $id);
+    mysqli_stmt_execute($stmt_del3);
+    mysqli_stmt_close($stmt_del3);
+    
+    $stmt_del4 = mysqli_prepare($conn, "DELETE FROM penjahit WHERE id = ?");
+    mysqli_stmt_bind_param($stmt_del4, "i", $id);
+    mysqli_stmt_execute($stmt_del4);
+    mysqli_stmt_close($stmt_del4);
     echo '<script>alert("🗑️ Penjahit berhasil dihapus!"); window.location.href="admin.php";</script>';
 }
 
 // Ambil semua penjahit
-$query = "SELECT * FROM penjahit ORDER BY dibuat_pada DESC";
-$result = mysqli_query($conn, $query);
+$stmt_list = mysqli_prepare($conn, "SELECT * FROM penjahit ORDER BY dibuat_pada DESC");
+mysqli_stmt_execute($stmt_list);
+$result = mysqli_stmt_get_result($stmt_list);
 
 $total = mysqli_num_rows($result);
-$pending = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM penjahit WHERE status = 'pending'"));
-$approved = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM penjahit WHERE status = 'approved'"));
-$rejected = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM penjahit WHERE status = 'rejected'"));
+$status_pending = 'pending';
+$stmt_pending = mysqli_prepare($conn, "SELECT COUNT(*) as c FROM penjahit WHERE status = ?");
+mysqli_stmt_bind_param($stmt_pending, "s", $status_pending);
+mysqli_stmt_execute($stmt_pending);
+$pending = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt_pending))['c'];
+mysqli_stmt_close($stmt_pending);
+
+$status_approved = 'approved';
+$stmt_approved = mysqli_prepare($conn, "SELECT COUNT(*) as c FROM penjahit WHERE status = ?");
+mysqli_stmt_bind_param($stmt_approved, "s", $status_approved);
+mysqli_stmt_execute($stmt_approved);
+$approved = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt_approved))['c'];
+mysqli_stmt_close($stmt_approved);
+
+$status_rejected = 'rejected';
+$stmt_rejected = mysqli_prepare($conn, "SELECT COUNT(*) as c FROM penjahit WHERE status = ?");
+mysqli_stmt_bind_param($stmt_rejected, "s", $status_rejected);
+mysqli_stmt_execute($stmt_rejected);
+$rejected = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt_rejected))['c'];
+mysqli_stmt_close($stmt_rejected);
 ?>
 
 <div class="card">
