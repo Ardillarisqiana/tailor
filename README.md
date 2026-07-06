@@ -1,3 +1,6 @@
+<b>Nama : Ardilla Risqiana</b>
+<b>NIM  : 101230088</b>
+<b>Kelas: TF23A</b>
 # JahitLink - Marketplace Penjahit Online
 
 **JahitLink** adalah aplikasi berbasis web yang menghubungkan klien dengan penjahit profesional. Klien dapat mencari, melihat portofolio, dan memesan jahitan secara online, sementara penjahit dapat mengelola toko, portofolio, dan pesanan melalui dashboard khusus. Admin bertugas memverifikasi dan menyetujui pendaftaran penjahit.
